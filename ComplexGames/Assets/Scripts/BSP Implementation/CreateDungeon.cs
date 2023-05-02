@@ -18,7 +18,7 @@ public class CreateDungeon : MonoBehaviour
         // root.Draw();
     }
 
-    private void BSP(Leaf l, int sDepth)
+    void BSP(Leaf l, int sDepth)
     {
         if(l == null) return;
         if(sDepth <= 0) return;
