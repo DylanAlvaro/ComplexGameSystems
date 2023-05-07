@@ -15,18 +15,26 @@ public class CreateDungeon : MonoBehaviour
     {
         root = new Leaf(0, 0, mapWidth, mapDepth, scale);
         BSP(root, 3);
-        // root.Draw();
+        Debug.Log("calling bsp");
     }
 
-    void BSP(Leaf l, int sDepth)
+   public void BSP(Leaf l, int sDepth)
     {
         if(l == null) return;
-        if(sDepth <= 0) return;
-      //  l.Draw(sDepth);
-        if(l.Split(sDepth))
+        if (sDepth <= 0)
+        {
+            l.Draw(0);
+            
+            return;
+        }
+        if(l.Split())
         {
             BSP(l.leftChild, sDepth  - 1);
             BSP(l.rightChild, sDepth - 1);
+        }
+        else
+        {
+            l.Draw(0);
         }
     }
 

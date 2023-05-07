@@ -9,6 +9,7 @@ public class Leaf : MonoBehaviour
    private int width;
    private int depthh;
    private int scale;
+   private int roomMin = 5;
 
    public Leaf leftChild;
    public Leaf rightChild;
@@ -21,27 +22,34 @@ public class Leaf : MonoBehaviour
       scale = s;
    }
 
-   public bool Split(int level)
+   public bool Split()
    {
-      if(Random.Range(0, 100) < 50)
+      if (width <= roomMin || depthh <= roomMin) return false;
+
+      bool splitHorizontal = Random.Range(0, 100) > 50;
+      if (width > depthh && width / depthh >= 1.2)
+         splitHorizontal = false;
+      else if (depthh > width && depthh / width >= 1.2)
+         splitHorizontal = true;
+
+      int max = (splitHorizontal ? depthh : width) - roomMin;
+      if (max <= roomMin)
+         return false;
+      
+      if(splitHorizontal)
       {
-         int l1Depth = Random.Range((int) (depthh * .1f), (int) (depthh * .7f));
+         int l1Depth = Random.Range(roomMin, max);
          leftChild = new Leaf(xpos, zpos, width, l1Depth, scale);
          rightChild = new Leaf(xpos, zpos + l1Depth, width, depthh - l1Depth, scale);
       }
       else
       {
-         int l1Width = Random.Range((int) (width * .1f), (int) (width * .7f));
+         int l1Width = Random.Range(roomMin, max);
          leftChild = new Leaf(xpos, zpos, l1Width, depthh, scale);
          rightChild = new Leaf(xpos + l1Width, zpos , width, l1Width - depthh, scale);
       }
-
-      leftChild.Draw(level);
-      rightChild.Draw(level);
       
       return true;
-      // Leaf l1 = new Leaf(0, 0, mapWidth, l1Depth, scale);
-      // Leaf l2 = new Leaf(0, l1Depth, mapWidth, mapDepth - l1Depth, scale);
    }
    
    public void Draw(int level)
