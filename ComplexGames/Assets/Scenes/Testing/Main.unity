@@ -342,9 +342,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1592962769}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46b94982a19ef03408dfe249e69eb30b, type: 3}
+  m_Script: {fileID: 11500000, guid: 525a988f31217cf45b85974f02963af2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapWidth: 50
-  mapDepth: 50
-  scale: 2
