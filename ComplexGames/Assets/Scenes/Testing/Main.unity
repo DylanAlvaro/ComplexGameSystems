@@ -310,6 +310,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1592962770}
+  - component: {fileID: 1592962771}
   m_Layer: 0
   m_Name: Generator
   m_TagString: Untagged
@@ -332,3 +333,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1592962771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592962769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0af18122cdcfc68478c011d8cb89d0c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  size: {x: 5, y: 1, z: 5}
+  maxRoomSize: {x: 15, y: 1, z: 15}
+  roomCount: 15
+  floorPrefab: {fileID: 4711922189475153407, guid: af19b271da87c5a438f0dcd33a6a929e, type: 3}
+  wallPrefab: {fileID: 7298854203043368766, guid: 16b26c983a152a94e87e08df9c0887f1, type: 3}
+  seed: 0
