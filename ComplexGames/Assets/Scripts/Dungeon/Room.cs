@@ -16,9 +16,9 @@ namespace Scripts.Dungeon
 
 		public static bool RoomsIntersecting(Room room1, Room room2)
 		{
-			return !(room1.bounds.position.x >= room2.bounds.position.x && room1.bounds.x <= room2.bounds.x ||
-			       room1.bounds.y >= room2.bounds.y && room1.bounds.y <= room2.bounds.y ||
-			       room1.bounds.z >= room2.bounds.z && room1.bounds.z <= room2.bounds.z);
+			return !(room1.bounds.position.x >= room2.bounds.position.x + room1.bounds.size.x || room1.bounds.x <= room2.bounds.x  - room2.bounds.size.x||
+			       room1.bounds.y >= room2.bounds.y + room1.bounds.size.y|| room1.bounds.y <= room2.bounds.y - room2.bounds.size.y||
+			       room1.bounds.z >= room2.bounds.z + room1.bounds.size.z|| room1.bounds.z <= room2.bounds.z - room2.bounds.size.z);
 		}
 		
 		public static bool RoomBounds(Room r1, Vector3Int size)

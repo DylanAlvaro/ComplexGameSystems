@@ -346,8 +346,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   size: {x: 5, y: 1, z: 5}
-  maxRoomSize: {x: 15, y: 1, z: 15}
-  roomCount: 15
+  maxRoomSize: {x: 25, y: 1, z: 25}
+  roomCount: 10
   floorPrefab: {fileID: 4711922189475153407, guid: af19b271da87c5a438f0dcd33a6a929e, type: 3}
   wallPrefab: {fileID: 7298854203043368766, guid: 16b26c983a152a94e87e08df9c0887f1, type: 3}
   seed: 0

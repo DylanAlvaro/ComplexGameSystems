@@ -1,11 +1,10 @@
+using System;
 using Scripts.Dungeon;
 
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
 using Unity.Mathematics;
-
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -31,8 +30,11 @@ public class Dungeon : MonoBehaviour
     private bool canAddWalls = true;
     private List<Rooms> _rooms;
     private int roomDistance = 10;
+    public Material blueMat;
 
     private int spacingBetween = 50;
+
+    public DelaunayTri DelaunayTri;
     
     // Start is called before the first frame update
     void Start()
@@ -93,16 +95,17 @@ public class Dungeon : MonoBehaviour
 
     private void Triangulation()
     {
-        // this is where we will be adding Dulanays Triangulation 
-    }
+        DelaunayTri delaunayTri = new DelaunayTri();
 
-   //private void PlaceWall()
-   //{
-   //    if(canAddWalls)
-   //    {
-   //        PlaceWall();
-   //    }
-   //}
+        List<Edge> vertices = new List<Edge>();
+
+        //IEnumerable<Point> triangles = delaunayTri.GeneratePoints(roomCount, _rooms.bounds.x, _rooms.bounds.y);
+    } 
+    
+    private void CreateCorridors()
+   {
+       
+   }
     
     /// <summary>
     /// Function takes in a vector3 location and size
@@ -131,6 +134,12 @@ public class Dungeon : MonoBehaviour
     {
         PlaceCube(place, size);
     }
+    
+    private void PlaceCorridors(Vector3Int place)
+    {
+        PlaceCube(place, new Vector3Int(1,1,1));
+    }
+    
     private void PlaceWall(Vector3Int place, Vector3Int size)
     {
         PlaceWalls(place, size);
