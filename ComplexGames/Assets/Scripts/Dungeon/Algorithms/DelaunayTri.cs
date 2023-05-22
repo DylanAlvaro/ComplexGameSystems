@@ -13,8 +13,7 @@ using Random = System.Random;
         {
             MaxX = maxX;
             MaxY = maxY;
-
-            // TODO make more beautiful
+            
             var point0 = new Point(0, 0);
             var point1 = new Point(0, MaxY);
             var point2 = new Point(MaxX, MaxY);

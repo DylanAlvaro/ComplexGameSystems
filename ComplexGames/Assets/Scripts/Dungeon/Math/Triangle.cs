@@ -12,7 +12,7 @@ public class Triangle : MonoBehaviour
         public Point circumcircle { get; private set; }
 
 
-        public IEnumerable<Triangle> trianglesWithEdges
+        public IEnumerable<Triangle> TrianglesWithEdges
         {
             get
             { 

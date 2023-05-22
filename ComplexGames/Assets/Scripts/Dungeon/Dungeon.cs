@@ -1,21 +1,20 @@
 using System;
 using Scripts.Dungeon;
+using Scripts.Dungeon.Algorithms;
+using Scripts.Dungeon.Pathfinder;
 
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
+
+using UnityEditor;
+
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class Dungeon : MonoBehaviour
 {
-    enum RoomType
-    {
-        None,
-        Room,
-        Corridors
-    }
     // Important variables for making sure the generation works
     [SerializeField] public Vector3Int size;
     [SerializeField] public Vector3Int maxRoomSize;
@@ -23,29 +22,30 @@ public class Dungeon : MonoBehaviour
     [SerializeField] public GameObject floorPrefab;
     [SerializeField] public GameObject wallPrefab;
     public int seed;
-   // public int Seed => seed.GetHashCode();
 
     // private variables
     private bool addDifferentRooms = true;
     private bool canAddWalls = true;
     private List<Rooms> _rooms;
     private int roomDistance = 10;
-    public Material blueMat;
+    private int _spacingBetween = 50;
 
-    private int spacingBetween = 50;
+    private List<Point> _verts;
 
+    //public variables
     public DelaunayTri DelaunayTri;
+    public PrimsAlgorithm PrimsAlgorithm;
     
     // Start is called before the first frame update
     void Start()
     {
         _rooms = new List<Rooms>();
+        _verts = new List<Point>();
+        seed = Random.Range(0, 99999);
         
         //calling functions to start
-        PlaceRooms();
-       // PlaceWall();
+        CreateRooms();
         Triangulation();
-        seed = Random.Range(0, 99999);
     }
 
     /// <summary>
@@ -54,25 +54,28 @@ public class Dungeon : MonoBehaviour
     /// are placed random (x, y, z) this is also done for the size of the rooms plus how high they can go up
     /// if the bool returns true it calls the Place Room function which takes in a location and size
     /// </summary>
-    private void PlaceRooms()
+    private void CreateRooms()
     {
         for(int i = 0; i < roomCount; i++)
         {
-            Vector3Int place = new Vector3Int(Random.Range(0, size.x + spacingBetween), 
-                                              Random.Range(0, size.y),
-                                              Random.Range(0, size.z + spacingBetween));
+            Vector3Int position = new Vector3Int(Random.Range(0, size.x + _spacingBetween),
+                                                 Random.Range(0, size.y),
+                                              Random.Range(0, size.z + _spacingBetween));
             
+            //_verts.Add(new Point(position.x, position.y));
             // making random sized rooms based on a x, y and z coord
             Vector3Int sizeOfRooms = new Vector3Int(Random.Range(1, maxRoomSize.x + 1),
-                                                    Random.Range(1, maxRoomSize.y + 1),
+                                                    Random.Range(0, maxRoomSize.y + 1),
                                                     Random.Range(1, maxRoomSize.z + 1));
             
-            Room newAddedRoom = new Room(place, sizeOfRooms);
-            Room spacing = new Room(place + new Vector3Int(-1, 0, -1), sizeOfRooms + new Vector3Int(5, 0, 5));
+            Room newAddedRoom = new Room(position, sizeOfRooms);
+            Room spacing = new Room(position + new Vector3Int(-1, 0, -1), sizeOfRooms + new Vector3Int(5, 0, 5));
             
+           
             //This should hopefully make sure that the cubes (rooms) aren't overlapping
-           foreach(Rooms room1 in _rooms)
-           {
+          
+            foreach(Rooms room1 in _rooms) 
+            {
                if(Room.RoomsIntersecting(newAddedRoom, spacing))
                {
                    addDifferentRooms = false;
@@ -83,11 +86,11 @@ public class Dungeon : MonoBehaviour
                   newAddedRoom.bounds.yMin < 0 || newAddedRoom.bounds.yMax >= size.y ||
                   newAddedRoom.bounds.zMin < 0 || newAddedRoom.bounds.zMax >= size.z) {
                    addDifferentRooms = false; 
-               }
-           }
-           if(addDifferentRooms)
-            { 
-               // _rooms.Add(newAddedRoom);
+               } 
+            } 
+            
+            if(addDifferentRooms)
+            {
                 PlaceRoom(newAddedRoom.bounds.position, newAddedRoom.bounds.size);
             }
         }
@@ -95,17 +98,44 @@ public class Dungeon : MonoBehaviour
 
     private void Triangulation()
     {
-        DelaunayTri delaunayTri = new DelaunayTri();
+        //delaunay implementation
+        
+        
+        // prims implementation
+       // Vertex[] vertices = PrimsAlgorithm.FindMst(_rooms);
 
-        List<Edge> vertices = new List<Edge>();
+       // foreach(Vertex v in vertices)
+       // {
+       //     if(v.Parent >= roomCount)
+       //     {
+       //         
+       //     }
+       // }
+    }
 
-        //IEnumerable<Point> triangles = delaunayTri.GeneratePoints(roomCount, _rooms.bounds.x, _rooms.bounds.y);
-    } 
+
+    /// <summary>
+    /// This function will pathfind through the rooms and create links between them
+    /// </summary>
+    void AstarCorridors()
+    {
+        var startRoom = _rooms.Add();
+        var endRoom = _rooms[i + 1];
+
+        // Use your A* pathfinding script to find the shortest path
+        Pathfinder pathfinder = new Pathfinder();
+        pathfinder.FindPath(startRoom, endRoom);
+
+       // foreach(Vertex vertex in )
+       // {
+       //     foreach(Rooms room in _rooms)
+       //     {
+       //         
+       //     }
+       // }
+    }
     
-    private void CreateCorridors()
-   {
-       
-   }
+    
     
     /// <summary>
     /// Function takes in a vector3 location and size
@@ -114,17 +144,12 @@ public class Dungeon : MonoBehaviour
     /// <param name="location"></param>
     /// <param name="size"></param>
     /// <param name="material"></param>
-   private void PlaceCube(Vector3Int location, Vector3Int size)
+   
+    private void PlaceRoomFloors(Vector3Int location, Vector3Int size)
     {
         GameObject gameObject = Instantiate(floorPrefab, location, Quaternion.identity);
         gameObject.GetComponent<Transform>().localScale = size;
     }
-    private void PlaceWalls(Vector3Int location, Vector3Int size)
-    {
-        GameObject gameObject = Instantiate(wallPrefab, location, quaternion.identity);
-        gameObject.GetComponent<Transform>().localScale = this.size;
-    }
-
     /// <summary>
     /// calls the place cube function above
     /// </summary>
@@ -132,16 +157,30 @@ public class Dungeon : MonoBehaviour
     /// <param name="size"></param>
     private void PlaceRoom(Vector3Int place, Vector3Int size)
     {
-        PlaceCube(place, size);
+        PlaceRoomFloors(place, size);
     }
     
-    private void PlaceCorridors(Vector3Int place)
+#region Editor
+#if UNITY_EDITOR
+    [CustomEditor(typeof(Pathfinder))]	
+    public class DungeonEditor : Editor
     {
-        PlaceCube(place, new Vector3Int(1,1,1));
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            Pathfinder pathfinder = (Pathfinder) target;
+			
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+			
+            EditorGUILayout.LabelField("Generate Delaunay Dungeon");
+            EditorGUILayout.LabelField("Generate BSP Dungeon");
+
+            EditorGUILayout.EndHorizontal();
+        }
     }
-    
-    private void PlaceWall(Vector3Int place, Vector3Int size)
-    {
-        PlaceWalls(place, size);
-    }
+#endif
+#endregion
+
 }
