@@ -21,31 +21,36 @@ public class Dungeon : MonoBehaviour
     [SerializeField] public int roomCount;
     [SerializeField] public GameObject floorPrefab;
     [SerializeField] public GameObject wallPrefab;
+    [SerializeField] public GameObject hallwayPrefab;
     public int seed;
 
     // private variables
     private bool addDifferentRooms = true;
     private bool canAddWalls = true;
-    private List<Rooms> _rooms;
+    private List<Room> _rooms;
     private int roomDistance = 10;
     private int _spacingBetween = 50;
+    private bool canConnectHalls = true;
 
     private List<Point> _verts;
 
+    private List<Edge> edges;
+
     //public variables
     public DelaunayTri DelaunayTri;
-    public PrimsAlgorithm PrimsAlgorithm;
-    
+    private PrimsAlgorithm PrimsAlgorithm;
+
     // Start is called before the first frame update
     void Start()
     {
-        _rooms = new List<Rooms>();
+        _rooms = new List<Room>();
         _verts = new List<Point>();
         seed = Random.Range(0, 99999);
-        
+
         //calling functions to start
         CreateRooms();
-        Triangulation();
+       // Triangulation();
+        //AstarCorridors();
     }
 
     /// <summary>
@@ -60,83 +65,182 @@ public class Dungeon : MonoBehaviour
         {
             Vector3Int position = new Vector3Int(Random.Range(0, size.x + _spacingBetween),
                                                  Random.Range(0, size.y),
-                                              Random.Range(0, size.z + _spacingBetween));
-            
+                                                 Random.Range(0, size.z + _spacingBetween));
+
             //_verts.Add(new Point(position.x, position.y));
             // making random sized rooms based on a x, y and z coord
             Vector3Int sizeOfRooms = new Vector3Int(Random.Range(1, maxRoomSize.x + 1),
                                                     Random.Range(0, maxRoomSize.y + 1),
                                                     Random.Range(1, maxRoomSize.z + 1));
-            
+
             Room newAddedRoom = new Room(position, sizeOfRooms);
             Room spacing = new Room(position + new Vector3Int(-1, 0, -1), sizeOfRooms + new Vector3Int(5, 0, 5));
-            
-           
+
+
             //This should hopefully make sure that the cubes (rooms) aren't overlapping
-          
-            foreach(Rooms room1 in _rooms) 
+
+            foreach(Room room1 in _rooms)
             {
-               if(Room.RoomsIntersecting(newAddedRoom, spacing))
-               {
-                   addDifferentRooms = false;
-                   break;
-               }
-               
-               if(newAddedRoom.bounds.xMin < 0 || newAddedRoom.bounds.xMax >= size.x || 
-                  newAddedRoom.bounds.yMin < 0 || newAddedRoom.bounds.yMax >= size.y ||
-                  newAddedRoom.bounds.zMin < 0 || newAddedRoom.bounds.zMax >= size.z) {
-                   addDifferentRooms = false; 
-               } 
-            } 
-            
+                if(Room.RoomsIntersecting(newAddedRoom, spacing))
+                {
+                    addDifferentRooms = false;
+
+                    break;
+                }
+
+                if(newAddedRoom.bounds.xMin < 0 || newAddedRoom.bounds.xMax >= size.x ||
+                   newAddedRoom.bounds.yMin < 0 || newAddedRoom.bounds.yMax >= size.y ||
+                   newAddedRoom.bounds.zMin < 0 || newAddedRoom.bounds.zMax >= size.z)
+                {
+                    addDifferentRooms = false;
+                }
+            }
+
             if(addDifferentRooms)
             {
                 PlaceRoom(newAddedRoom.bounds.position, newAddedRoom.bounds.size);
+               // ConnectRooms();
             }
+
+            if(canConnectHalls)
+            {
+                ConnectHalls(newAddedRoom, newAddedRoom);
+            }
+
+          // if(roomCount >= 5)
+          // {
+          //     ConnectRooms();
+          // }
         }
     }
 
     private void Triangulation()
     {
         //delaunay implementation
-        
-        
-        // prims implementation
-       // Vertex[] vertices = PrimsAlgorithm.FindMst(_rooms);
+        List<Graphs.Vertex> vertices = new List<Graphs.Vertex>();
 
-       // foreach(Vertex v in vertices)
-       // {
-       //     if(v.Parent >= roomCount)
-       //     {
-       //         
-       //     }
-       // }
+        //foreach(Rooms room in _rooms)
+        //{
+        //    vertices.Add(new Graphs.Vertex<Rooms>((Vector3) room.bounds.position + ((Vector3) room.bounds.size) / 2, room));
+        //}
+        DelaunayTri.GeneratePoints(roomCount, size.x, size.y);
     }
-
-
+    
+    
+    
     /// <summary>
     /// This function will pathfind through the rooms and create links between them
     /// </summary>
-    void AstarCorridors()
+
+    private void AstarCorridors(Room r1, Room r2)
     {
-        var startRoom = _rooms.Add();
-        var endRoom = _rooms[i + 1];
-
-        // Use your A* pathfinding script to find the shortest path
         Pathfinder pathfinder = new Pathfinder();
-        pathfinder.FindPath(startRoom, endRoom);
+      
+        Vector3 startRoom = r1.bounds.position;
+        Vector3 endRoom = r2.bounds.position;
+      
+        Vector3 endRoomSize = r2.bounds.size;
+        Vector3 startRoomSize = r2.bounds.size;
 
-       // foreach(Vertex vertex in )
-       // {
-       //     foreach(Rooms room in _rooms)
-       //     {
-       //         
-       //     }
-       // }
+        Vector3 startPosF = r1.bounds.center;
+        Vector3 endPosF = r2.bounds.center;
+      
+        var startPos = new Vector3Int((int)startPosF.x, (int)startPosF.y, (int)startPosF.z);
+        var endPos = new Vector3Int((int)endPosF.x, (int)endPosF.y, (int)endPosF.z);
+        Vector3 dir = (endRoom - startRoom).normalized;
+
+        float dst = Vector3.Distance(startRoom, endRoom); 
+        //pathfinder.FindPath(startPos, endPos);
+        Vector3 hallwayScale = new Vector3(dst, 1f, 2f);
+        
+        
+        
+
+        // Instantiate the hallway prefab
+        GameObject hallwayObj = Instantiate(hallwayPrefab, startPos, Quaternion.identity);
+        hallwayObj.GetComponent<Transform>().localScale = hallwayScale;
     }
+
+ // private void ConnectRooms()
+ // {
+ //     List<Room> connectedRooms = new List<Room>();
+ //     connectedRooms.Add(_rooms[roomCount + 5]);
+///
+ //     while(connectedRooms.Count < roomCount)
+ //     {
+ //         Room newRooms = GetNearestRoom(connectedRooms);
+ //         Room nearestRoom = null;
+ //         float shortestDst = float.MaxValue;
+///
+ //         foreach(Room r in connectedRooms)
+ //         {
+ //             float dist = Vector3.Distance(r.transform.position, newRooms.transform.position);
+ 
+ // }
+
+  private void ConnectHalls(Room r1, Room r2)
+  {
+      Pathfinder pathfinder = new Pathfinder();
+      
+      Vector3 startRoom = r1.bounds.position;
+      Vector3 endRoom = r2.bounds.position;
+      
+      Vector3 endRoomSize = r2.bounds.size;
+      Vector3 startRoomSize = r2.bounds.size;
+
+      Vector3 startPosF = r1.bounds.center;
+      Vector3 endPosF = r2.bounds.center;
+      
+      var startPos = new Vector3Int((int)startPosF.x, (int)startPosF.y, (int)startPosF.z);
+      var endPos = new Vector3Int((int)endPosF.x, (int)endPosF.y, (int)endPosF.z);
+      Vector3 dir = (endRoom - startRoom).normalized;
+
+      float dst = Vector3.Distance(startRoom, endRoom); 
+      //pathfinder.FindPath(startPos, endPos);
+      Vector3 hallwayScale = new Vector3(dst, 1f, 2f);
+
+      // Instantiate the hallway prefab
+      GameObject hallwayObj = Instantiate(hallwayPrefab, startPos, Quaternion.identity);
+      hallwayObj.GetComponent<Transform>().localScale = hallwayScale;
+  }
+
+  private Room GetNearestRoom(List<Room> connectedRooms)
+  {
+      Room nearestRoom = null;
+      float shortestDistance = float.MaxValue;
+
+      foreach (Room r in _rooms)
+      {
+          if (!connectedRooms.Contains(r))
+          {
+              float distance = GetMinimumDistance(r, connectedRooms);
+              if (distance < shortestDistance)
+              {
+                  shortestDistance = distance;
+                  nearestRoom = r;
+              }
+          }
+      }
+
+      return nearestRoom;
+  }
     
-    
-    
+    private float GetMinimumDistance(Room room, List<Room> connectedRooms)
+    {
+        float minDistance = float.MaxValue;
+
+        foreach (Room connectedRoom in connectedRooms)
+        {
+            float distance = Vector3.Distance(room.transform.position, connectedRoom.transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+            }
+        }
+
+        return minDistance;
+    }
+
     /// <summary>
     /// Function takes in a vector3 location and size
     /// Instantiates a prefab and sets its transform
@@ -144,12 +248,13 @@ public class Dungeon : MonoBehaviour
     /// <param name="location"></param>
     /// <param name="size"></param>
     /// <param name="material"></param>
-   
+
     private void PlaceRoomFloors(Vector3Int location, Vector3Int size)
     {
         GameObject gameObject = Instantiate(floorPrefab, location, Quaternion.identity);
         gameObject.GetComponent<Transform>().localScale = size;
     }
+
     /// <summary>
     /// calls the place cube function above
     /// </summary>
@@ -159,28 +264,14 @@ public class Dungeon : MonoBehaviour
     {
         PlaceRoomFloors(place, size);
     }
-    
-#region Editor
-#if UNITY_EDITOR
-    [CustomEditor(typeof(Pathfinder))]	
-    public class DungeonEditor : Editor
+
+    private void PlaceCorridors(Vector3Int position)
     {
-        public override void OnInspectorGUI()
-        {
-            base.OnInspectorGUI();
-
-            Pathfinder pathfinder = (Pathfinder) target;
-			
-            EditorGUILayout.Space();
-            EditorGUILayout.BeginHorizontal();
-			
-            EditorGUILayout.LabelField("Generate Delaunay Dungeon");
-            EditorGUILayout.LabelField("Generate BSP Dungeon");
-
-            EditorGUILayout.EndHorizontal();
-        }
+        PlaceRoomFloors(position, new Vector3Int(1,1,1));
     }
-#endif
-#endregion
+}
 
+internal class Edges
+{
+    
 }

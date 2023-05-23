@@ -1,3 +1,5 @@
+using Scripts.Dungeon;
+
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -18,6 +20,14 @@ public class Edge
    }
    public Point point1 { get; }
    public Point point2 { get; }
+   
+   public Graphs.Vertex U { get; set; }
+   public Graphs.Vertex V { get; set; }
+   
+   public Edge(Graphs.Vertex u, Graphs.Vertex v) {
+      U = u;
+      V = v;
+   }
 
    public Edge(Point p1, Point p2)
    {

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+
+using UnityEngine;
 
 namespace Scripts.Dungeon.Pathfinder
 {
@@ -11,7 +13,7 @@ namespace Scripts.Dungeon.Pathfinder
 
 		public int gCost;
 		public int hCost;
-		public Node Parent;
+		public Node Parent { get; set; }
 
 		public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY)
 		{
@@ -29,4 +31,5 @@ namespace Scripts.Dungeon.Pathfinder
 			}
 		}
 	}
+	
 }

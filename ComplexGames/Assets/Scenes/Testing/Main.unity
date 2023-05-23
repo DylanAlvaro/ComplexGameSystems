@@ -394,5 +394,5 @@ MonoBehaviour:
   roomCount: 5
   floorPrefab: {fileID: 4711922189475153407, guid: af19b271da87c5a438f0dcd33a6a929e, type: 3}
   wallPrefab: {fileID: 7298854203043368766, guid: 16b26c983a152a94e87e08df9c0887f1, type: 3}
+  hallwayPrefab: {fileID: 2702600003439686637, guid: fa46a16afd59f7745ba89c0c5e8a51ea, type: 3}
   seed: 0
-  PrimsAlgorithm: {fileID: 0}
