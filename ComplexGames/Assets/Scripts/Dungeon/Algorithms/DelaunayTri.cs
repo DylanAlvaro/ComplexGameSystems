@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Scripts.Dungeon;
 using UnityEngine;
 using Random = System.Random;
 
@@ -91,5 +92,10 @@ using Random = System.Random;
         {
             var badTriangles = triangles.Where(o => o.isPointInCircumCircle(point));
             return new HashSet<Triangle>(badTriangles);
+        }
+        
+
+        static bool AlmostEqual(Graphs.Vertex left, Graphs.Vertex right) {
+            return (left.Position - right.Position).sqrMagnitude < 0.01f;
         }
     }

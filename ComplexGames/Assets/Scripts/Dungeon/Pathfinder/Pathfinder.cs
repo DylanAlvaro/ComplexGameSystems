@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Xml;
 using UnityEditor;
 
 using UnityEngine;
@@ -11,15 +11,22 @@ namespace Scripts.Dungeon.Pathfinder
 	{
 		public Grid grid;
 
+		private PriorityQueue<Node> _queue;
+		public struct PathCost {
+			public bool traversable;
+			public float cost;
+		}
+		
 		private void Awake()
 		{
 			grid = GetComponent<Grid>();
 		}
 
-		public void FindPath(Vector3 startPos, Vector3 targetPos)
+		public void FindPath(Vector3 startPos, Vector3 targetPos, Func<Node, Node, PathCost> costFunc)
 		{
 			Node startNode = grid.NodeFromWorldPoint(startPos);
 			Node targetNode = grid.NodeFromWorldPoint(targetPos);
+			_queue = new PriorityQueue<Node>();
 
 			List<Node> openList = new List<Node>();
 			HashSet<Node> closedList = new HashSet<Node>();
@@ -29,12 +36,13 @@ namespace Scripts.Dungeon.Pathfinder
 			while(openList.Count > 0)
 			{
 				Node currentNode = openList[0];
-
 				for(int i = 1; i < openList.Count; i++)
 				{
 					if(openList[i].fCost < currentNode.fCost || openList[i].fCost == currentNode.fCost && openList[i].hCost < currentNode.hCost) 
 						currentNode = openList[i];
-				} 
+				}
+				
+				Node node = _queue.Dequeue();
 				openList.Remove(currentNode);
 				closedList.Add(currentNode);
 
